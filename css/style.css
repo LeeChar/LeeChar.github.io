@@ -487,26 +487,6 @@ figure.highlight:hover .copy {
 .gist .file {
   all: initial;
 }
-.box01 input {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  outline: 0;
-  width: 270px;
-  height: 30px;
-  border: 0px solid #fff;
-  border-radius: 20px;
-  box-shadow: 0 0 5px 2px rgba(0,0,0,0.1);
-  padding: 0 30px 0 15px;
-}
-.box01 label {
-  font-size: 16px;
-  z-index: 2;
-  position: absolute;
-  left: 109px;
-  top: 15%;
-  color: #b2b2b2;
-}
 /*利用<i>来安放图标*/
 .search_icon {
   display: inline-block;

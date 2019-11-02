@@ -82,12 +82,9 @@
     <div class="container">
         <div class="navbar-brand is-flex-center">
             <a class="navbar-item navbar-logo" href="/">
-
-
-                <!--update by thank: 修改logo方式-->
-                <!--<img src="/images/maotouying.svg" alt="蜗居年华" height="28">-->
-                <img src="/images/maotouying.svg" alt="webpack 优化" height="28">
-                <span style="font-size: 16px; display: inline-block; vertical-align: top; font-weight: 600;">云卷云舒</span>
+                <!-- <img src="/images/maotouying.svg" alt="蜗居年华" height="28"> -->
+                <!-- <img src="/images/maotouying.svg" alt="webpack 优化" height="28"> -->
+                <!-- <span style="font-size: 16px; display: inline-block; vertical-align: top; font-weight: 600;">云卷云舒</span> -->
                 <!--
             % if (has_config('logo.text') && get_config('logo.text')) { 
                 <span style="font-size: 16px; display: inline-block; vertical-align: top; font-weight: 600;">%= get_config('logo.text') %</span>
@@ -123,12 +120,8 @@
                 <a class="navbar-item search" title="搜索" href="javascript:;">
 
 
-                    <div class="box01">
-                        <input type="text" id="tip" placeholder="You Know, for Search~">
-                        <i class="search_icon"></i>
-                    </div>
 
-                    <!--<i class="fas fa-search"></i>-->
+                    <i class="fas fa-search"></i>
 
                 </a>
                 
@@ -192,7 +185,7 @@
 <p><code>.babelrc</code>配置文件</p>
 <figure class="highlight json hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="hljs-attr">"presets"</span>: [</span><br><span class="line">        <span class="hljs-string">"@babel/preset-env"</span>,</span><br><span class="line">        <span class="hljs-string">"@babel/preset-react"</span></span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h2 id="1-删除无用的Css样式"><a href="#1-删除无用的Css样式" class="headerlink" title="1.删除无用的Css样式"></a>1.删除无用的Css样式</h2><p>先来看编写的代码</p>
-<figure class="highlight javascript hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">import</span> <span class="hljs-string">'./style.css'</span></span><br><span class="line"><span class="hljs-keyword">import</span> React <span class="hljs-keyword">from</span> <span class="hljs-string">'react'</span>;</span><br><span class="line"><span class="hljs-keyword">import</span> ReactDOM <span class="hljs-keyword">from</span> <span class="hljs-string">'react-dom'</span>;</span><br><span class="line"></span><br><span class="line">ReactDOM.render(&lt;div&gt;hello&lt;/div&gt;,<span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'root'</span>));</span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">import</span> <span class="hljs-string">'./style.css'</span></span><br><span class="line"><span class="hljs-keyword">import</span> React <span class="hljs-keyword">from</span> <span class="hljs-string">'react'</span>;</span><br><span class="line"><span class="hljs-keyword">import</span> ReactDOM <span class="hljs-keyword">from</span> <span class="hljs-string">'react-dom'</span>;</span><br><span class="line"></span><br><span class="line">ReactDOM.render(<span class="hljs-xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>hello<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span>,<span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'root'</span>));</span><br></pre></td></tr></table></figure>
 <figure class="highlight css hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-selector-tag">body</span>&#123;</span><br><span class="line">    <span class="hljs-attribute">background</span>: red</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="hljs-selector-class">.class1</span>&#123;</span><br><span class="line">    <span class="hljs-attribute">background</span>: red</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <blockquote>
 <p>这里的<code>.class1</code>显然是无用的，我们可以搜索<code>src</code>目录下的文件，删除无用的样式</p>
@@ -242,7 +235,7 @@
 <li>减少多个函数后内存占用也将减少</li>
 </ul>
 <h2 id="5-DllPlugin-amp-amp-DllReferencePlugin"><a href="#5-DllPlugin-amp-amp-DllReferencePlugin" class="headerlink" title="5.DllPlugin &amp;&amp; DllReferencePlugin"></a>5.DllPlugin &amp;&amp; DllReferencePlugin</h2><p>每次构建时第三方模块都需要重新构建，这个性能消耗比较大，我们可以先把第三方库打包成动态链接库，以后构建时只需要查找构建好的库就好了，这样可以大大节约构建时间</p>
-<figure class="highlight javascript hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">import</span> React <span class="hljs-keyword">from</span> <span class="hljs-string">'react'</span>;</span><br><span class="line"><span class="hljs-keyword">import</span> ReactDOM <span class="hljs-keyword">from</span> <span class="hljs-string">'react-dom'</span>;</span><br><span class="line"></span><br><span class="line">ReactDOM.render(&lt;h1&gt;hello&lt;/h1&gt;,<span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'root'</span>))</span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">import</span> React <span class="hljs-keyword">from</span> <span class="hljs-string">'react'</span>;</span><br><span class="line"><span class="hljs-keyword">import</span> ReactDOM <span class="hljs-keyword">from</span> <span class="hljs-string">'react-dom'</span>;</span><br><span class="line"></span><br><span class="line">ReactDOM.render(<span class="hljs-xml"><span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>hello<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span></span>,<span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'root'</span>))</span><br></pre></td></tr></table></figure>
 <h3 id="5-1-DllPlugin"><a href="#5-1-DllPlugin" class="headerlink" title="5.1 DllPlugin"></a>5.1 DllPlugin</h3><blockquote>
 <p>这里我们可以先将<code>react</code>、<code>react-dom</code>单独进行打包</p>
 </blockquote>
@@ -392,8 +385,8 @@
         el: '#valine-thread' ,
         notify: false,
         verify: false,
-        app_id: 'yVPV2fAKC1B90Xnh2JjuPEAb-gzGzoHsz',
-        app_key: '1i9DgF7j75Uq6OuM23etjjE9',
+        app_id: 'vMVjrNSKWCIjsMarRg8fhVkX-gzGzoHsz',
+        app_key: 'F8VTM12DhQYakS0ciwVdfVgz',
         placeholder: 'Just go go, 支持Markdown~'
     });
 
@@ -707,5 +700,5 @@ document.addEventListener('DOMContentLoaded', function () {
     <!--背景线条-->
     <!--<script type="text/javascript" color="0,0,255" opacity='0.7' zIndex="-1" count="99" src="dist/canvas-nest.js"></script>-->
     <!--<script type="text/javascript" color="0,0,255" opacity='0.7' zIndex="-1" count="99" src="//cdn.bootcss.com/canvas-nest.js/1.0.0/canvas-nest.min.js"></script>-->
-<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+</body>
 </html>
