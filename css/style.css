@@ -68,6 +68,9 @@ textarea {
 .card + .card,
 .card + .column-right-shadow {
   margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  max-height: calc(100vh - 1.5rem);
+  overflow-y: scroll;
 }
 .card.card-transparent {
   box-shadow: none;

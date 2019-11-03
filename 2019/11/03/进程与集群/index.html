@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+<title>进程与集群 - LeeChar</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+    
+    <meta name="description" content="进程（Process）是计算机中的程序关于某数据集合上的一次运行活动，是系统进行资源分配和调度的基本单位。线程（Thread）是操作系统能够进行运算调度的最小单位。它被包含在进程之中，是进程中的实际运作单位。 Node特点主线程是单线程的，一个进程只开一个主线程,基于事件驱动的、异步非阻塞I/O，可以应用于高并发场景Nodejs中没有多线程，为了充分利用多核cpu,可以使用子进程实现内核的负载均衡">
+<meta name="keywords" content="node">
+<meta property="og:type" content="article">
+<meta property="og:title" content="进程与集群">
+<meta property="og:url" content="http://leechar.github.io/2019/11/03/进程与集群/index.html">
+<meta property="og:site_name" content="LeeChar">
+<meta property="og:description" content="进程（Process）是计算机中的程序关于某数据集合上的一次运行活动，是系统进行资源分配和调度的基本单位。线程（Thread）是操作系统能够进行运算调度的最小单位。它被包含在进程之中，是进程中的实际运作单位。 Node特点主线程是单线程的，一个进程只开一个主线程,基于事件驱动的、异步非阻塞I/O，可以应用于高并发场景Nodejs中没有多线程，为了充分利用多核cpu,可以使用子进程实现内核的负载均衡">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-11-03T00:45:08.325Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="进程与集群">
+<meta name="twitter:description" content="进程（Process）是计算机中的程序关于某数据集合上的一次运行活动，是系统进行资源分配和调度的基本单位。线程（Thread）是操作系统能够进行运算调度的最小单位。它被包含在进程之中，是进程中的实际运作单位。 Node特点主线程是单线程的，一个进程只开一个主线程,基于事件驱动的、异步非阻塞I/O，可以应用于高并发场景Nodejs中没有多线程，为了充分利用多核cpu,可以使用子进程实现内核的负载均衡">
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/solarized-light.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/css/lightgallery.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/css/justifiedGallery.min.css">
+    
+
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+    
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<!--<body class="is-2-column">-->
+<body class="is-3-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/">
+                <!-- <img src="/images/maotouying.svg" alt="蜗居年华" height="28"> -->
+                <!-- <img src="/images/maotouying.svg" alt="进程与集群" height="28"> -->
+                <!-- <span style="font-size: 16px; display: inline-block; vertical-align: top; font-weight: 600;">云卷云舒</span> -->
+                <!--
+            % if (has_config('logo.text') && get_config('logo.text')) { 
+                <span style="font-size: 16px; display: inline-block; vertical-align: top; font-weight: 600;">%= get_config('logo.text') %</span>
+                %= get_config('logo.text') %
+            % } else { %
+                <img src="%- url_for(get_config('logo')) %" alt="%= get_config('title') %" height="28">
+            % } %
+                -->
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a class="navbar-item" href="/">首页</a>
+                
+                <a class="navbar-item" href="/archives">归档</a>
+                
+                <a class="navbar-item" href="/categories">分类</a>
+                
+                <a class="navbar-item" href="/tags">标签</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="文章目录" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="搜索" href="javascript:;">
+
+
+
+                    <i class="fas fa-search"></i>
+
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-9-widescreen has-order-2 column-main">    <div class="card">
+
+        <!--update by thank: 文章详情页面不显示文章图片thumbnail-->
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+
+                <!--updated by thank: 列表页显示几年前, 文章页显示具体日期-->
+                
+                <span style="color: #7a7a7a !important;">写于2019-11-03 08:18:35&nbsp;&nbsp;&nbsp;</span>
+                
+
+                <!--<span style="color: #7a7a7a !important;">2019-11-03 08:18:35&nbsp;&nbsp;&nbsp;</span>-->
+                <!--<time class="level-item has-text-grey" datetime="2019-11-03T00:18:35.000Z">2019-11-03</time>-->
+                <!--<time class="level-item has-text-grey"  datetime="2019-12-12 22:22:22">2018-12-12 22:22:22</time>-->
+
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/程序员/">程序员</a>
+                </div>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    14 分钟 读完 (大约 2053 个字)
+                </span>
+                
+
+                
+                <span class="level-item has-text-grey" id="busuanzi_container_page_pv">
+                    <i class="far fa-eye"></i>
+                    <span id="busuanzi_value_page_pv">0</span>次访问
+                </span>
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-normal">
+            
+                进程与集群
+            
+        </h1>
+
+        <div class="content">
+
+            <!--update by thank: 控制首页摘要信息不显示样式(去掉Markdown生成的html标签)-->
+            
+                <p>进程（Process）是计算机中的程序关于某数据集合上的一次运行活动，是系统进行资源分配和调度的基本单位。<br>线程（Thread）是操作系统能够进行运算调度的最小单位。它被包含在进程之中，是进程中的实际运作单位。</p>
+<p><strong>Node特点主线程是单线程的，</strong>一个进程只开一个主线程,基于事件驱动的、异步非阻塞I/O，可以应用于高并发场景<br>Nodejs中没有多线程，为了充分利用多核cpu,可以使用子进程实现内核的负载均衡</p>
+<p><strong>那我们就要解决以下问题</strong></p>
+<ul>
+<li>Node.js 做耗时的计算时候阻塞问题</li>
+<li>Node.js如何开启多进程</li>
+<li>开发过程中如何实现进程守护  </li>
+</ul>
+<a id="more"></a>
+<h2 id="单线程的问题"><a href="#单线程的问题" class="headerlink" title="单线程的问题"></a>单线程的问题</h2><figure class="highlight javascript hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http'</span>);</span><br><span class="line"></span><br><span class="line">http.createServer(<span class="hljs-function">(<span class="hljs-params">req,res</span>)=&gt;</span>&#123;</span><br><span class="line">    <span class="hljs-keyword">if</span>(req.url === <span class="hljs-string">'/sum'</span>)&#123; <span class="hljs-comment">// 求和</span></span><br><span class="line">        <span class="hljs-keyword">let</span> sum = <span class="hljs-number">0</span>;</span><br><span class="line">        <span class="hljs-keyword">for</span>(<span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span> ; i &lt; <span class="hljs-number">10000000000</span> ;i++)&#123;</span><br><span class="line">            sum+=i;</span><br><span class="line">        &#125;</span><br><span class="line">        res.end(sum+<span class="hljs-string">''</span>)</span><br><span class="line">    &#125;<span class="hljs-keyword">else</span>&#123;</span><br><span class="line">        res.end(<span class="hljs-string">'end'</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;).listen(<span class="hljs-number">3000</span>);</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>访问 <code>/sum</code> 这个路径时，再新建一个浏览器页卡访问 <code>/</code> 会发现新的页卡需要要等待 <code>/sum</code> 路径的逻辑处理好后，才能处理 <code>/</code> 路径的逻辑 </p>
+</blockquote>
+<h2 id="spawn-操作进程"><a href="#spawn-操作进程" class="headerlink" title="spawn 操作进程"></a>spawn 操作进程</h2><blockquote>
+<p>适合很大的输出操作时使用</p>
+</blockquote>
+<h3 id="开启进程"><a href="#开启进程" class="headerlink" title="开启进程"></a>开启进程</h3><p>Node.js 可以通过 <code>child_process</code> 创建子进程</p>
+<ul>
+<li>child_process.spawn(） 异步生成子进程</li>
+<li>child_process.fork() 产生一个新的Node.js进程，并使用建立的IPC通信通道调用指定的模块，该通道允许在父级和子级之间发送消息。</li>
+<li>child_process.exec() 产生一个shell并在该shell中运行命令</li>
+<li>child_process.execFile() 无需产生shell</li>
+</ul>
+<h4 id="spawn"><a href="#spawn" class="headerlink" title="spawn"></a>spawn</h4><figure class="highlight javascript hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">let</span> &#123; spawn &#125; = <span class="hljs-built_in">require</span>(<span class="hljs-string">"child_process"</span>);</span><br><span class="line"><span class="hljs-keyword">let</span> path = <span class="hljs-built_in">require</span>(<span class="hljs-string">"path"</span>);</span><br><span class="line"></span><br><span class="line"><span class="hljs-comment">// 通过node命令执行sub_process.js文件</span></span><br><span class="line"><span class="hljs-keyword">let</span> childProcess = spawn(<span class="hljs-string">"node"</span>,[<span class="hljs-string">'sub_process.js'</span>], &#123;</span><br><span class="line">  cwd: path.resolve(__dirname, <span class="hljs-string">"test"</span>), <span class="hljs-comment">// 指定执行文件的父目录</span></span><br><span class="line">  stdio: [<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>] </span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="hljs-comment">// 监控错误</span></span><br><span class="line">childProcess.on(<span class="hljs-string">"error"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err</span>) </span>&#123;</span><br><span class="line">  <span class="hljs-built_in">console</span>.log(err);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="hljs-comment">// 监听关闭事件</span></span><br><span class="line">childProcess.on(<span class="hljs-string">"close"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>&#123;</span><br><span class="line">  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"close"</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="hljs-comment">// 监听退出事件</span></span><br><span class="line">childProcess.on(<span class="hljs-string">"exit"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>&#123;</span><br><span class="line">  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"exit"</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><code>stdio</code> 的 0、1、2 分别对应当前主进程的 <code>process.stdin</code>, <code>process.stdout</code>, <code>process.stderr</code>, 可以写成数字也可以写成属性。还可以写成 <code>inherit</code> ，作用和前面等价，默认写法。也可以设置忽略这些流，设置 <code>stdio: &#39;inherit&#39;</code>  或者 <code>stdio: [&#39;inherit&#39;, &#39;inherit&#39;, &#39;inherit&#39;]</code> 。</p>
+</blockquote>
+<p><strong>这样就意味着子进程在运行时，使用的 <code>process</code> 是主进程的。</strong></p>
+<h3 id="读取子进程的打印结果"><a href="#读取子进程的打印结果" class="headerlink" title="读取子进程的打印结果"></a>读取子进程的打印结果</h3><p>通过管道的方式通信</p>
+<figure class="highlight javascript hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-comment">// 主进程</span></span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">let</span> &#123; spawn &#125; = <span class="hljs-built_in">require</span>(<span class="hljs-string">"child_process"</span>);</span><br><span class="line"><span class="hljs-keyword">let</span> path = <span class="hljs-built_in">require</span>(<span class="hljs-string">"path"</span>);</span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">let</span> childProcess = spawn(<span class="hljs-string">"node"</span>,[<span class="hljs-string">'sub_process.js'</span>], &#123;</span><br><span class="line">  cwd: path.resolve(__dirname, <span class="hljs-string">"test"</span>),</span><br><span class="line">  stdio: <span class="hljs-string">'pipe'</span> <span class="hljs-comment">// 等价于 ['pipe', 'pipe', 'pipe']</span></span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="hljs-comment">// 监听标准输出</span></span><br><span class="line">childProcess.stdout.on(<span class="hljs-string">"data"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">data</span>) </span>&#123;</span><br><span class="line">  <span class="hljs-built_in">console</span>.log(data);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>通过管道的方式，监听子进程的可写流，从而可以拿到子进程打印的结果</p>
+</blockquote>
+<figure class="highlight javascript hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-comment">// 子进程 test/sub_process.js</span></span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">let</span> total = <span class="hljs-number">0</span></span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">10000000000</span>; i++) &#123;</span><br><span class="line">	total += i</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="hljs-comment">// 铜鼓</span></span><br><span class="line">process.stdout.write(total + <span class="hljs-string">''</span>) <span class="hljs-comment">// 只能输出字符串或者 buffer</span></span><br></pre></td></tr></table></figure>
+<h3 id="进程通信"><a href="#进程通信" class="headerlink" title="进程通信"></a>进程通信</h3><h4 id="子进程向主进程发送数据"><a href="#子进程向主进程发送数据" class="headerlink" title="子进程向主进程发送数据"></a>子进程向主进程发送数据</h4><figure class="highlight javascript hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-comment">// 主进程</span></span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">let</span> &#123; spawn &#125; = <span class="hljs-built_in">require</span>(<span class="hljs-string">"child_process"</span>);</span><br><span class="line"><span class="hljs-keyword">let</span> path = <span class="hljs-built_in">require</span>(<span class="hljs-string">"path"</span>);</span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">let</span> childProcess = spawn(<span class="hljs-string">"node"</span>,[<span class="hljs-string">'sub_process.js'</span>], &#123;</span><br><span class="line">  cwd: path.resolve(__dirname, <span class="hljs-string">"test"</span>),</span><br><span class="line">  stdio: [<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-string">'ipc'</span>]</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="hljs-comment">// 监听子进程发送过来的数据</span></span><br><span class="line">childProcess.on(<span class="hljs-string">"message"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">data</span>) </span>&#123;</span><br><span class="line">  <span class="hljs-built_in">console</span>.log(data);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><code>stdio</code> 的参数设置比较特殊，可以写成上面那样。还可以把 0、1、2 中的任意一个替换成 ipc 也可以。注意结合 0、1、2 代表的实际意义来决定使用方式。</p>
+</blockquote>
+<figure class="highlight javascript hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-comment">// 子进程 test/sub_process.js</span></span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">let</span> total = <span class="hljs-number">0</span></span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">10000000000</span>; i++) &#123;</span><br><span class="line">	total += i</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">process.send(total) <span class="hljs-comment">// 向主进程发送意数据类型</span></span><br></pre></td></tr></table></figure>
+<h3 id="主进程向子进程发送数据"><a href="#主进程向子进程发送数据" class="headerlink" title="主进程向子进程发送数据"></a>主进程向子进程发送数据</h3><figure class="highlight javascript hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">childProcess.send(<span class="hljs-number">666</span>);</span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">let</span> total = <span class="hljs-number">0</span></span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">10000000000</span>; i++) &#123;</span><br><span class="line">	total += i</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">process.send(total) <span class="hljs-comment">// 向主进程发送意数据类型</span></span><br><span class="line"></span><br><span class="line">process.on(<span class="hljs-string">'message'</span>, (data) =&gt; &#123;</span><br><span class="line">	<span class="hljs-built_in">console</span>.log(data)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p><strong>注意：</strong><br><strong>上面主进程向子进程通信的逻辑会正确执行，但是主进程和子进程都会保持运行状态。因为子进程在持续监听 <code>message</code> 事件；对于子进程而言，它并不知道主进程什么时候会发送消息过来，从而一直保持监听状态。导致整个程序，即主进程和子进程都维持这运行状态。</strong><br><strong>可以在 <code>message</code> 事件里面，设置 <code>process.exit()</code> 。监听事件被执行后，就关闭主进程。</strong></p>
+<h3 id="缺陷"><a href="#缺陷" class="headerlink" title="缺陷"></a>缺陷</h3><p>上面的进程操作，子进程必须听主进程的；一旦主进程挂了，子进程就会挂。</p>
+<h3 id="独立运行的子进程"><a href="#独立运行的子进程" class="headerlink" title="独立运行的子进程"></a>独立运行的子进程</h3><figure class="highlight javascript hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-comment">// 主进程</span></span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">let</span> &#123; spawn &#125; = <span class="hljs-built_in">require</span>(<span class="hljs-string">"child_process"</span>);</span><br><span class="line"><span class="hljs-keyword">let</span> path = <span class="hljs-built_in">require</span>(<span class="hljs-string">"path"</span>);</span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">let</span> childProcess = spawn(<span class="hljs-string">"node"</span>,[<span class="hljs-string">'sub_process.js'</span>], &#123;</span><br><span class="line">  cwd: path.resolve(__dirname, <span class="hljs-string">"test"</span>),</span><br><span class="line">  stdio: <span class="hljs-string">'ingnore'</span>, <span class="hljs-comment">// 忽略子进程的“三流”</span></span><br><span class="line">  detached: <span class="hljs-literal">true</span> <span class="hljs-comment">// 创建独立的进程</span></span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">childProcess.unref() <span class="hljs-comment">// 切断与子进程的关系</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">setInterval(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> &#123;</span><br><span class="line">	fs.readFileSync(<span class="hljs-string">'a.txt'</span>, <span class="hljs-string">'1'</span>)</span><br><span class="line">&#125;, <span class="hljs-number">1000</span>)</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>可以在子进程里打印下进程号 <code>process.pid</code> ，方便 <code>kill</code></p>
+</blockquote>
+<h3 id="解决单线程的问题"><a href="#解决单线程的问题" class="headerlink" title="解决单线程的问题"></a>解决单线程的问题</h3><figure class="highlight javascript hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http'</span>);</span><br><span class="line"><span class="hljs-keyword">const</span> &#123;spawn&#125; = <span class="hljs-built_in">require</span>(<span class="hljs-string">'child_process'</span>);</span><br><span class="line"><span class="hljs-keyword">const</span> path = <span class="hljs-built_in">require</span>(<span class="hljs-string">'path'</span>);</span><br><span class="line"></span><br><span class="line">http.createServer(<span class="hljs-function">(<span class="hljs-params">req,res</span>)=&gt;</span>&#123;</span><br><span class="line">    <span class="hljs-keyword">if</span>(req.url === <span class="hljs-string">'/sum'</span>)&#123;</span><br><span class="line">        <span class="hljs-keyword">let</span> cp = spawn(<span class="hljs-string">'node'</span>,[<span class="hljs-string">'sub_process.js'</span>],&#123;</span><br><span class="line">            cwd:path.resolve(__dirname,<span class="hljs-string">'test'</span>),</span><br><span class="line">            stdio:[<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>,<span class="hljs-string">'ipc'</span>]</span><br><span class="line">        &#125;);</span><br><span class="line">        cp.on(<span class="hljs-string">'message'</span>,<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">total</span>)</span>&#123;</span><br><span class="line">            res.end(<span class="hljs-string">'total:'</span>+total);</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;<span class="hljs-keyword">else</span>&#123;</span><br><span class="line">        res.end(<span class="hljs-string">'end ok'</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;).listen(<span class="hljs-number">3000</span>);</span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">let</span> sum = <span class="hljs-number">0</span>;</span><br><span class="line"><span class="hljs-keyword">for</span>(<span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span> ; i &lt; <span class="hljs-number">10000000000</span> ;i++)&#123;</span><br><span class="line">  sum += i;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">process.send(sum)</span><br></pre></td></tr></table></figure>
+<h2 id="child-process-的其它-API-操作进程"><a href="#child-process-的其它-API-操作进程" class="headerlink" title="child_process 的其它 API 操作进程"></a>child_process 的其它 API 操作进程</h2><h3 id="执行文件"><a href="#执行文件" class="headerlink" title="执行文件"></a>执行文件</h3><blockquote>
+<p>只执行某个文件，不做其他的操作时适合使用。默认使用了 <code>ipc</code> 通信。</p>
+</blockquote>
+<figure class="highlight javascript hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">fork(<span class="hljs-string">'sum.js'</span>,&#123;</span><br><span class="line">  cwd:path.resolve(__dirname,<span class="hljs-string">'test'</span>),</span><br><span class="line">  silent:<span class="hljs-literal">true</span> <span class="hljs-comment">// true: 管道通信、false: 等价于 spawn 的 stdio 的默认值</span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<h3 id="执行命令"><a href="#执行命令" class="headerlink" title="执行命令"></a>执行命令</h3><blockquote>
+<p>适合数据小于 200k 的操作场景</p>
+</blockquote>
+<p>方式一：</p>
+<figure class="highlight javascript hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"> <span class="hljs-comment">// 不会产生默认的 shell 窗口</span></span><br><span class="line">exec(<span class="hljs-string">'ls -ll'</span>, (err, stdout, stderr) =&gt; &#123;</span><br><span class="line">  <span class="hljs-built_in">console</span>.log(stdout)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>方式二：</p>
+<figure class="highlight javascript hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"> <span class="hljs-comment">// 会产生默认的 shell 窗口</span></span><br><span class="line">execFile(<span class="hljs-string">'ls'</span>, [<span class="hljs-string">'-ll'</span>], (err, stdout, stderr)=&gt;&#123;</span><br><span class="line">  <span class="hljs-built_in">console</span>.log(stdout)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<h2 id="集群"><a href="#集群" class="headerlink" title="集群"></a>集群</h2><p>集群：多个人去实现一个功能<br>分布式：把一个功能拆分成多个，放到不同的地方</p>
+<h3 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h3><h4 id="fork"><a href="#fork" class="headerlink" title="fork"></a>fork</h4><p>开启多个进程，并同时监听一个服务。当请求到来时，会让空闲的进程去处理。实现负载均衡</p>
+<figure class="highlight javascript hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">const</span> &#123;fork&#125; = <span class="hljs-built_in">require</span>(<span class="hljs-string">'child_process'</span>);</span><br><span class="line"><span class="hljs-keyword">const</span> cpus = <span class="hljs-built_in">require</span>(<span class="hljs-string">'os'</span>).cpus().length - <span class="hljs-number">1</span>; <span class="hljs-comment">// 拿到 cpu 核数（当前脚本会占一个进程）</span></span><br><span class="line"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http'</span>);</span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">let</span> server = http.createServer(<span class="hljs-function">(<span class="hljs-params">req,res</span>)=&gt;</span>&#123;</span><br><span class="line">    res.end(<span class="hljs-string">'parent:'</span>+process.pid);</span><br><span class="line">&#125;).listen(<span class="hljs-number">3000</span>);</span><br><span class="line"></span><br><span class="line"><span class="hljs-built_in">console</span>.log(process.pid) <span class="hljs-comment">// 当前进程</span></span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">for</span>(<span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span> ; i &lt; cpus;i++)&#123;</span><br><span class="line">    <span class="hljs-keyword">let</span> child = fork(<span class="hljs-string">'server.js'</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="hljs-comment">// server 的名字固定，传入一个http服务，即其他集成需要监听的服务</span></span><br><span class="line">    child.send(<span class="hljs-string">'server'</span>,server);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-comment">// server.js</span></span><br><span class="line"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http'</span>)</span><br><span class="line"></span><br><span class="line">process.on(<span class="hljs-string">'message'</span>, (data, server) =&gt; &#123;</span><br><span class="line">	http.createServer(<span class="hljs-function">(<span class="hljs-params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">  res.end(<span class="hljs-string">'processPID:'</span> + process.pid)</span><br><span class="line">  &#125;).listen(server)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<h4 id="内置模块"><a href="#内置模块" class="headerlink" title="内置模块"></a>内置模块</h4><figure class="highlight javascript hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">const</span> cluster = <span class="hljs-built_in">require</span>(<span class="hljs-string">'cluster'</span>);</span><br><span class="line"><span class="hljs-keyword">const</span> cpus = <span class="hljs-built_in">require</span>(<span class="hljs-string">'os'</span>).cpus().length;</span><br><span class="line"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http'</span>);</span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">if</span>(cluster.isMaster)&#123;</span><br><span class="line">  </span><br><span class="line">  cluster.on(<span class="hljs-string">'exit'</span>,<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">worker</span>) </span>&#123; <span class="hljs-comment">// 每当有进程挂掉时</span></span><br><span class="line">    <span class="hljs-built_in">console</span>.log(worker.process.pid); <span class="hljs-comment">// 打印这个进程的 pid</span></span><br><span class="line">    cluster.fork(); <span class="hljs-comment">// 重启进程</span></span><br><span class="line">  &#125;)</span><br><span class="line">  </span><br><span class="line">  <span class="hljs-keyword">for</span>(<span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>; i&lt; cpus; i++)&#123;</span><br><span class="line">    cluster.fork(); <span class="hljs-comment">// 开启进程</span></span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">&#125;<span class="hljs-keyword">else</span>&#123;</span><br><span class="line"></span><br><span class="line">  http.createServer(<span class="hljs-function">(<span class="hljs-params">req,res</span>)=&gt;</span>&#123;</span><br><span class="line">    <span class="hljs-comment">// 模拟错误请求</span></span><br><span class="line">    <span class="hljs-keyword">if</span>(<span class="hljs-built_in">Math</span>.random()&gt;<span class="hljs-number">0.5</span>)&#123;</span><br><span class="line">      aa();</span><br><span class="line">    &#125;</span><br><span class="line">    res.end(<span class="hljs-string">'process'</span>+process.pid)</span><br><span class="line">  &#125;).listen(<span class="hljs-number">3000</span>);</span><br><span class="line">  </span><br><span class="line">  <span class="hljs-built_in">console</span>.log(process.pid);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>原理是给予 <code>fork</code> 实现的，但好处显而易见。上面的程序在第一次运行的时候，<code>isMaster</code> 是 true；监听进程的状态再开启多进程。每开启一个进程(执行一次<code>fork</code>)，这个程序就被自动执行一次；并且每次的 <code>isMaster</code> 是 false。然后在下面的逻辑里，开启多个进程对一个服务的监听。</p>
+<p><strong>注意：当前的进程，可以视为守护进程。</strong><br>**</p>
+<h3 id="pm2"><a href="#pm2" class="headerlink" title="pm2"></a>pm2</h3><p>pm2可以把你的应用部署到服务器所有的CPU上,实现了多进程管理、监控、及负载均衡</p>
+<h4 id="安装pm2"><a href="#安装pm2" class="headerlink" title="安装pm2"></a>安装pm2</h4><figure class="highlight bash hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">npm install pm2 -g <span class="hljs-comment"># 安装pm2</span></span><br><span class="line">pm2 start server.js --watch -i max <span class="hljs-comment"># 启动进程</span></span><br><span class="line">pm2 list <span class="hljs-comment"># 显示进程状态</span></span><br><span class="line">pm2 <span class="hljs-built_in">kill</span> <span class="hljs-comment"># 杀死全部进程</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pm2 start npm -- run dev <span class="hljs-comment"># 启动npm脚本</span></span><br></pre></td></tr></table></figure>
+<h4 id="pm2配置文件"><a href="#pm2配置文件" class="headerlink" title="pm2配置文件"></a>pm2配置文件</h4><figure class="highlight bash hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pm2 ecosystem</span><br></pre></td></tr></table></figure>
+<p>配置项目自动部署</p>
+<figure class="highlight javascript hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-built_in">module</span>.exports = &#123;</span><br><span class="line">  apps : [&#123;</span><br><span class="line">    name: <span class="hljs-string">'my-project'</span>,</span><br><span class="line">    script: <span class="hljs-string">'server.js'</span>,</span><br><span class="line">    <span class="hljs-comment">// Options reference: https://pm2.io/doc/en/runtime/reference/ecosystem-file/</span></span><br><span class="line">    args: <span class="hljs-string">'one two'</span>,</span><br><span class="line">    instances: <span class="hljs-number">2</span>,</span><br><span class="line">    autorestart: <span class="hljs-literal">true</span>,</span><br><span class="line">    watch: <span class="hljs-literal">false</span>,</span><br><span class="line">    max_memory_restart: <span class="hljs-string">'1G'</span>,</span><br><span class="line">    env: &#123;</span><br><span class="line">      NODE_ENV: <span class="hljs-string">'development'</span></span><br><span class="line">    &#125;,</span><br><span class="line">    env_production: &#123;</span><br><span class="line">      NODE_ENV: <span class="hljs-string">'production'</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;],</span><br><span class="line">  deploy : &#123;</span><br><span class="line">    production : &#123;</span><br><span class="line">      user : <span class="hljs-string">'root'</span>,</span><br><span class="line">      host : <span class="hljs-string">'39.106.14.146'</span>,</span><br><span class="line">      ref  : <span class="hljs-string">'origin/master'</span>,</span><br><span class="line">      repo : <span class="hljs-string">'https://github.com/wakeupmypig/pm2-deploy.git'</span>,</span><br><span class="line">      path : <span class="hljs-string">'/home'</span>,</span><br><span class="line">      <span class="hljs-string">'post-deploy'</span> : <span class="hljs-string">'npm install &amp;&amp; pm2 reload ecosystem.config.js --env production'</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pm2 deploy ecosystem.config.js production setup # 执行git clone</span><br></pre></td></tr></table></figure>
+<p>上面执行 git clone 的命令去掉 setup，即可启动 pm2</p>
+
+            
+
+            <!--%- index && post.excerpt ? post.excerpt : post.content %-->
+        </div>
+
+        
+            <ul class="post-copyright">
+                <li><strong>本文标题：</strong><a href="http://leechar.github.io/2019/11/03/进程与集群/">进程与集群</a></li>
+                <li><strong>本文作者：</strong><a href="http://leechar.github.io">LeeChar</a></li>
+                <li><strong>本文链接：</strong><a href="http://leechar.github.io/2019/11/03/进程与集群/">http://leechar.github.io/2019/11/03/进程与集群/</a></li>
+                <li><strong>发布时间：</strong>2019-11-03</li>
+                <li><strong>版权声明：</strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+                </li>
+            </ul>
+        
+
+
+        
+        <div class="level is-size-7 is-uppercase">
+            <div class="level-start">
+                <div class="level-item">
+                    <span class="is-size-6 has-text-grey has-mr-7">#</span>
+                    <a class="has-link-grey -link" href="/tags/node/">node</a>
+                </div>
+            </div>
+        </div>
+        
+        
+
+        <!--% if (!index && has_config('share.type')) { %-->
+<!--        % if (index && has_config('share.type')) { %-->
+        
+    </div>
+</div>
+
+
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        
+        <div class="level-end">
+            <a class="level level-item has-link-grey  article-nav-next" href="/2019/11/02/TypeScript 环境/">
+                <span class="level-item">TypeScript 环境</span>
+                <i class="level-item fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+
+<div class="card">
+    <div class="card-content">
+        <h3 class="title is-5 has-text-weight-normal">评论</h3>
+        
+<div id="valine-thread" class="content"></div>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="/js/Valine.min.js"></script>
+<!--<script src='//unpkg.com/valine/dist/Valine.min.js'></script>-->
+<script>
+    new Valine({
+        el: '#valine-thread' ,
+        notify: false,
+        verify: false,
+        app_id: 'vMVjrNSKWCIjsMarRg8fhVkX-gzGzoHsz',
+        app_key: 'F8VTM12DhQYakS0ciwVdfVgz',
+        placeholder: 'Just go go, 支持Markdown~'
+    });
+
+</script>
+
+    </div>
+</div>
+</div>
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-3-widescreen  has-order-1 column-left ">
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <nav class="level">
+            <div class="level-item has-text-centered">
+                <div>
+                    
+                    <img class="image is-128x128 has-mb-6" src="/images/avatar.png" alt="李昌南" style="border-radius: 50%">
+                    
+                    
+                    <p class="is-size-4 is-block">
+                        李昌南
+                    </p>
+                    
+                    
+                    
+                </div>
+            </div>
+        </nav>
+        <nav class="level is-mobile">
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        文章
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        6
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        分类
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        1
+                    </p>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        标签
+                    </p>
+                    <p class="title has-text-weight-normal">
+                        5
+                    </p>
+                </div>
+            </div>
+        </nav>
+        
+        
+
+        
+        
+    </div>
+</div>
+    
+        
+<!--<div class="card widget" id="toc">-->
+<div class="card widget column-left is-sticky" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                文章目录
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#单线程的问题">
+        <span class="has-mr-6">1</span>
+        <span>单线程的问题</span>
+        </a></li><li>
+        <a class="is-flex" href="#spawn-操作进程">
+        <span class="has-mr-6">2</span>
+        <span>spawn 操作进程</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#开启进程">
+        <span class="has-mr-6">2.1</span>
+        <span>开启进程</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#spawn">
+        <span class="has-mr-6">2.1.1</span>
+        <span>spawn</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#读取子进程的打印结果">
+        <span class="has-mr-6">2.2</span>
+        <span>读取子进程的打印结果</span>
+        </a></li><li>
+        <a class="is-flex" href="#进程通信">
+        <span class="has-mr-6">2.3</span>
+        <span>进程通信</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#子进程向主进程发送数据">
+        <span class="has-mr-6">2.3.1</span>
+        <span>子进程向主进程发送数据</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#主进程向子进程发送数据">
+        <span class="has-mr-6">2.4</span>
+        <span>主进程向子进程发送数据</span>
+        </a></li><li>
+        <a class="is-flex" href="#缺陷">
+        <span class="has-mr-6">2.5</span>
+        <span>缺陷</span>
+        </a></li><li>
+        <a class="is-flex" href="#独立运行的子进程">
+        <span class="has-mr-6">2.6</span>
+        <span>独立运行的子进程</span>
+        </a></li><li>
+        <a class="is-flex" href="#解决单线程的问题">
+        <span class="has-mr-6">2.7</span>
+        <span>解决单线程的问题</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#child-process-的其它-API-操作进程">
+        <span class="has-mr-6">3</span>
+        <span>child_process 的其它 API 操作进程</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#执行文件">
+        <span class="has-mr-6">3.1</span>
+        <span>执行文件</span>
+        </a></li><li>
+        <a class="is-flex" href="#执行命令">
+        <span class="has-mr-6">3.2</span>
+        <span>执行命令</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#集群">
+        <span class="has-mr-6">4</span>
+        <span>集群</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#实现">
+        <span class="has-mr-6">4.1</span>
+        <span>实现</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#fork">
+        <span class="has-mr-6">4.1.1</span>
+        <span>fork</span>
+        </a></li><li>
+        <a class="is-flex" href="#内置模块">
+        <span class="has-mr-6">4.1.2</span>
+        <span>内置模块</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#pm2">
+        <span class="has-mr-6">4.2</span>
+        <span>pm2</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#安装pm2">
+        <span class="has-mr-6">4.2.1</span>
+        <span>安装pm2</span>
+        </a></li><li>
+        <a class="is-flex" href="#pm2配置文件">
+        <span class="has-mr-6">4.2.2</span>
+        <span>pm2配置文件</span>
+        </a></li></ul></li></ul></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+    
+        <div class="column-right-shadow is-hidden-widescreen is-sticky">
+        
+        </div>
+    
+</div>
+
+                
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    云卷云舒
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2016—2019 LeeChar&nbsp;
+                由<a href="http://hexo.io/" target="_blank">Hexo</a> 强力驱动
+                    <!--& <a href="http://github.com/ppoffice/hexo-theme-icarus" target="_blank">Icarus</a>-->
+                
+                <br>
+                <span id="busuanzi_container_site_uv">
+                您是第<span id="busuanzi_value_site_uv">0</span>个访客
+                </span>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+            </div>
+        </div>
+    </div>
+</footer>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("zh-CN");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/js/lightgallery.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js" defer></script>
+    <script src="/js/gallery.js" defer></script>
+    
+
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" href="http://outdatedbrowser.com/">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="回到顶端" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+    
+
+    
+
+
+<script src="/js/main.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="全文搜索站内文章~">
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(无标题)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+
+    <!--背景线条-->
+    <!--<script type="text/javascript" color="0,0,255" opacity='0.7' zIndex="-1" count="99" src="dist/canvas-nest.js"></script>-->
+    <!--<script type="text/javascript" color="0,0,255" opacity='0.7' zIndex="-1" count="99" src="//cdn.bootcss.com/canvas-nest.js/1.0.0/canvas-nest.min.js"></script>-->
+</body>
+</html>

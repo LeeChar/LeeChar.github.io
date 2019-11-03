@@ -12,7 +12,7 @@
 <meta name="keywords" content="webpack">
 <meta property="og:type" content="article">
 <meta property="og:title" content="webpack 优化">
-<meta property="og:url" content="https://xiefayang.com/2019/11/02/webpack 优化/index.html">
+<meta property="og:url" content="http://leechar.github.io/2019/11/02/webpack 优化/index.html">
 <meta property="og:site_name" content="LeeChar">
 <meta property="og:description" content="上一章节我们已经掌握了webpack常见的所有配置 这一节我们来看看如何实现webpack中的优化，我们先来编写最基本的webpack配置，然后依次实现各种优化！">
 <meta property="og:locale" content="zh-CN">
@@ -36,7 +36,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-dark.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/solarized-light.css">
 
 
     
@@ -70,6 +70,16 @@
     
 <link rel="stylesheet" href="/css/progressbar.css">
 <script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+    
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
 
     
 
@@ -164,6 +174,11 @@
                 </span>
                 
 
+                
+                <span class="level-item has-text-grey" id="busuanzi_container_page_pv">
+                    <i class="far fa-eye"></i>
+                    <span id="busuanzi_value_page_pv">0</span>次访问
+                </span>
                 
             </div>
         </div>
@@ -317,9 +332,9 @@
 
         
             <ul class="post-copyright">
-                <li><strong>本文标题：</strong><a href="https://xiefayang.com/2019/11/02/webpack 优化/">webpack 优化</a></li>
-                <li><strong>本文作者：</strong><a href="https://xiefayang.com">LeeChar</a></li>
-                <li><strong>本文链接：</strong><a href="https://xiefayang.com/2019/11/02/webpack 优化/">https://xiefayang.com/2019/11/02/webpack 优化/</a></li>
+                <li><strong>本文标题：</strong><a href="http://leechar.github.io/2019/11/02/webpack 优化/">webpack 优化</a></li>
+                <li><strong>本文作者：</strong><a href="http://leechar.github.io">LeeChar</a></li>
+                <li><strong>本文链接：</strong><a href="http://leechar.github.io/2019/11/02/webpack 优化/">http://leechar.github.io/2019/11/02/webpack 优化/</a></li>
                 <li><strong>发布时间：</strong>2019-11-02</li>
                 <li><strong>版权声明：</strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
                 </li>
@@ -428,7 +443,7 @@
                         文章
                     </p>
                     <p class="title has-text-weight-normal">
-                        5
+                        6
                     </p>
                 </div>
             </div>
@@ -448,7 +463,7 @@
                         标签
                     </p>
                     <p class="title has-text-weight-normal">
-                        4
+                        5
                     </p>
                 </div>
             </div>
@@ -576,6 +591,11 @@
                 由<a href="http://hexo.io/" target="_blank">Hexo</a> 强力驱动
                     <!--& <a href="http://github.com/ppoffice/hexo-theme-icarus" target="_blank">Icarus</a>-->
                 
+                <br>
+                <span id="busuanzi_container_site_uv">
+                您是第<span id="busuanzi_value_site_uv">0</span>个访客
+                </span>
+                
                 </p>
             </div>
             <div class="level-end">
@@ -660,6 +680,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     
     
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+    
+
     
 
 
