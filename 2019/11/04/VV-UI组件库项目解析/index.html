@@ -2,19 +2,24 @@
 <html lang="zh">
 <head><meta name="generator" content="Hexo 3.8.0">
     <meta charset="utf-8">
-<title>标签: JavaScript - LeeChar</title>
+<title>VV-UI组件库项目解析 - LeeChar</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
 
 
     
-    <meta property="og:type" content="website">
-<meta property="og:title" content="LeeChar">
-<meta property="og:url" content="http://leechar.github.io/tags/JavaScript/index.html">
+    <meta name="description" content="前言：基于前端三大框架，组件化已经在市面上全面普及，针对各自公司需要应对的业务场景所需要的组件库也在普及，这时就需要明白搭建一个内部组件库的流程是怎样的。这是这篇文章的写作动力，从解析 VV-UI 这个基于vue的项目开始了解。">
+<meta name="keywords" content="项目解析">
+<meta property="og:type" content="article">
+<meta property="og:title" content="VV-UI组件库项目解析">
+<meta property="og:url" content="http://leechar.github.io/2019/11/04/VV-UI组件库项目解析/index.html">
 <meta property="og:site_name" content="LeeChar">
+<meta property="og:description" content="前言：基于前端三大框架，组件化已经在市面上全面普及，针对各自公司需要应对的业务场景所需要的组件库也在普及，这时就需要明白搭建一个内部组件库的流程是怎样的。这是这篇文章的写作动力，从解析 VV-UI 这个基于vue的项目开始了解。">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-11-03T22:32:57.227Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="LeeChar">
+<meta name="twitter:title" content="VV-UI组件库项目解析">
+<meta name="twitter:description" content="前言：基于前端三大框架，组件化已经在市面上全面普及，针对各自公司需要应对的业务场景所需要的组件库也在普及，这时就需要明白搭建一个内部组件库的流程是怎样的。这是这篇文章的写作动力，从解析 VV-UI 这个基于vue的项目开始了解。">
 
 
 
@@ -76,14 +81,14 @@
 
 <link rel="stylesheet" href="/css/style.css">
 </head>
-<!--<body class="is-3-column">-->
+<!--<body class="is-2-column">-->
 <body class="is-3-column">
     <nav class="navbar navbar-main">
     <div class="container">
         <div class="navbar-brand is-flex-center">
             <a class="navbar-item navbar-logo" href="/">
                 <!-- <img src="/images/maotouying.svg" alt="蜗居年华" height="28"> -->
-                <!-- <img src="/images/maotouying.svg" alt="LeeChar" height="28"> -->
+                <!-- <img src="/images/maotouying.svg" alt="VV-UI组件库项目解析" height="28"> -->
                 <!-- <span style="font-size: 16px; display: inline-block; vertical-align: top; font-weight: 600;">云卷云舒</span> -->
                 <!--
             % if (has_config('logo.text') && get_config('logo.text')) { 
@@ -112,6 +117,10 @@
             <div class="navbar-end">
                 
                 
+                <a class="navbar-item is-hidden-tablet catalogue" title="文章目录" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
                 
                 <a class="navbar-item search" title="搜索" href="javascript:;">
 
@@ -129,18 +138,7 @@
     <section class="section">
         <div class="container">
             <div class="columns">
-                <div class="column is-8-tablet is-8-desktop is-6-widescreen has-order-2 column-main"><div class="card">
-    <div class="card-content">
-        <nav class="breadcrumb" aria-label="breadcrumbs">
-        <ul>
-            <li><a href="/tags">标签</a></li>
-            <li class="is-active"><a href="#" aria-current="page">JavaScript</a></li>
-        </ul>
-        </nav>
-    </div>
-</div>
-
-        <div class="card">
+                <div class="column is-8-tablet is-8-desktop is-9-widescreen has-order-2 column-main">    <div class="card">
 
         <!--update by thank: 文章详情页面不显示文章图片thumbnail-->
     
@@ -151,11 +149,11 @@
 
                 <!--updated by thank: 列表页显示几年前, 文章页显示具体日期-->
                 
-                <time class="level-item has-text-grey" datetime="2019-10-29T20:43:05.000Z">2019-10-30</time>
+                <span style="color: #7a7a7a !important;">写于2019-11-04 06:22:25&nbsp;&nbsp;&nbsp;</span>
                 
 
-                <!--<span style="color: #7a7a7a !important;">2019-10-30 04:43:05&nbsp;&nbsp;&nbsp;</span>-->
-                <!--<time class="level-item has-text-grey" datetime="2019-10-29T20:43:05.000Z">2019-10-30</time>-->
+                <!--<span style="color: #7a7a7a !important;">2019-11-04 06:22:25&nbsp;&nbsp;&nbsp;</span>-->
+                <!--<time class="level-item has-text-grey" datetime="2019-11-03T22:22:25.000Z">2019-11-04</time>-->
                 <!--<time class="level-item has-text-grey"  datetime="2019-12-12 22:22:22">2018-12-12 22:22:22</time>-->
 
                 
@@ -167,17 +165,22 @@
                 <span class="level-item has-text-grey">
                     
                     
-                    2 分钟 读完 (大约 306 个字)
+                    1 分钟 读完 (大约 115 个字)
                 </span>
                 
 
+                
+                <span class="level-item has-text-grey" id="busuanzi_container_page_pv">
+                    <i class="far fa-eye"></i>
+                    <span id="busuanzi_value_page_pv">0</span>次访问
+                </span>
                 
             </div>
         </div>
         
         <h1 class="title is-size-3 is-size-4-mobile has-text-weight-normal">
             
-                <a class="has-link-black-ter" href="/2019/10/30/模板引擎/">ejs 原理实现</a>
+                VV-UI组件库项目解析
             
         </h1>
 
@@ -185,24 +188,36 @@
 
             <!--update by thank: 控制首页摘要信息不显示样式(去掉Markdown生成的html标签)-->
             
-                <figure class="highlight html hljs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">&lt;!DOCTYPE html&gt;</span></span><br><span class="line"><span class="hljs-tag">&lt;<span class="hljs-name">html</span> <span class="hljs-attr">lang</span>=<span class="hljs-string">"en"</span>&gt;</span></span><br><span class="line"><span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span></span><br><span class="line">  <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">charset</span>=<span class="hljs-string">"UTF-8"</span>&gt;</span></span><br><span class="line">  <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"viewport"</span> <span class="hljs-attr">content</span>=<span class="hljs-string">"width=device-width, initial-scale=1.0"</span>&gt;</span></span><br><span class="line">  <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">http-equiv</span>=<span class="hljs-string">"X-UA-Compatible"</span> <span class="hljs-attr">content</span>=<span class="hljs-string">"ie=edge"</span>&gt;</span></span><br><span class="line">  <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>Document<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span></span><br><span class="line"><span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span></span><br><span class="line"><span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span></span><br><span class="line">  <span class="hljs-tag">&lt;<span class="hljs-name">%</span> <span class="hljs-attr">arr.forEach</span>(<span class="hljs-attr">item</span> =&gt;</span> &#123; %&gt;</span><br><span class="line">    <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">%=item%</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span></span><br><span class="line">  <span class="hljs-tag">&lt;<span class="hljs-name">%</span> &#125;) %&gt;</span></span><br><span class="line"><span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span></span><br><span class="line"><span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+                <p>  前言：基于前端三大框架，组件化已经在市面上全面普及，针对各自公司需要应对的业务场景所需要的组件库也在普及，这时就需要明白搭建一个内部组件库的流程是怎样的。这是这篇文章的写作动力，从解析 <a href="https://github.com/VV-UI/VV-UI" target="_blank" rel="noopener">VV-UI</a> 这个基于<code>vue</code>的项目开始了解。</p>
+  <a id="more"></a>
+
             
 
             <!--%- index && post.excerpt ? post.excerpt : post.content %-->
         </div>
 
         
+            <ul class="post-copyright">
+                <li><strong>本文标题：</strong><a href="http://leechar.github.io/2019/11/04/VV-UI组件库项目解析/">VV-UI组件库项目解析</a></li>
+                <li><strong>本文作者：</strong><a href="http://leechar.github.io">LeeChar</a></li>
+                <li><strong>本文链接：</strong><a href="http://leechar.github.io/2019/11/04/VV-UI组件库项目解析/">http://leechar.github.io/2019/11/04/VV-UI组件库项目解析/</a></li>
+                <li><strong>发布时间：</strong>2019-11-04</li>
+                <li><strong>版权声明：</strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="external nofollow" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明出处！
+                </li>
+            </ul>
+        
 
 
         
-        
-        <div class="level is-mobile">
+        <div class="level is-size-7 is-uppercase">
             <div class="level-start">
                 <div class="level-item">
-                <a class="button is-size-7 is-light" href="/2019/10/30/模板引擎/#more">阅读更多...</a>
+                    <span class="is-size-6 has-text-grey has-mr-7">#</span>
+                    <a class="has-link-grey -link" href="/tags/项目解析/">项目解析</a>
                 </div>
             </div>
         </div>
+        
         
 
         <!--% if (!index && has_config('share.type')) { %-->
@@ -215,9 +230,44 @@
 
 
 
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        
+        <div class="level-end">
+            <a class="level level-item has-link-grey  article-nav-next" href="/2019/11/04/使用 vuex/">
+                <span class="level-item">使用 vuex</span>
+                <i class="level-item fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
 
 
 
+<div class="card">
+    <div class="card-content">
+        <h3 class="title is-5 has-text-weight-normal">评论</h3>
+        
+<div id="valine-thread" class="content"></div>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="/js/Valine.min.js"></script>
+<!--<script src='//unpkg.com/valine/dist/Valine.min.js'></script>-->
+<script>
+    new Valine({
+        el: '#valine-thread' ,
+        notify: false,
+        verify: false,
+        app_id: 'vMVjrNSKWCIjsMarRg8fhVkX-gzGzoHsz',
+        app_key: 'F8VTM12DhQYakS0ciwVdfVgz',
+        placeholder: 'Just go go, 支持Markdown~'
+    });
+
+</script>
+
+    </div>
+</div>
 </div>
                 
 
@@ -286,94 +336,27 @@
 </div>
     
         
-    
-    
-        <div class="column-right-shadow is-hidden-widescreen is-sticky">
-        
-            <div class="card widget">
+<!--<div class="card widget" id="toc">-->
+<div class="card widget column-left is-sticky" id="toc">
     <div class="card-content">
         <div class="menu">
-        <h3 class="menu-label">
-            归档
-        </h3>
-        <ul class="menu-list">
-        
-        <li>
-            <a class="level is-marginless" href="/archives/2019/11/">
-                <span class="level-start">
-                    <span class="level-item">十一月 2019</span>
-                </span>
-                <span class="level-end">
-                    <span class="level-item tag">6</span>
-                </span>
-            </a>
-        </li>
-        
-        <li>
-            <a class="level is-marginless" href="/archives/2019/10/">
-                <span class="level-start">
-                    <span class="level-item">十月 2019</span>
-                </span>
-                <span class="level-end">
-                    <span class="level-item tag">2</span>
-                </span>
-            </a>
-        </li>
-        
-        </ul>
+            <h3 class="menu-label">
+                文章目录
+            </h3>
+            
         </div>
     </div>
 </div>
+
+    
+    
+        <div class="column-right-shadow is-hidden-widescreen is-sticky">
         
         </div>
     
 </div>
 
                 
-
-
-
-
-<div class="column is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only has-order-3 column-right is-sticky">
-    
-        <div class="card widget">
-    <div class="card-content">
-        <div class="menu">
-        <h3 class="menu-label">
-            归档
-        </h3>
-        <ul class="menu-list">
-        
-        <li>
-            <a class="level is-marginless" href="/archives/2019/11/">
-                <span class="level-start">
-                    <span class="level-item">十一月 2019</span>
-                </span>
-                <span class="level-end">
-                    <span class="level-item tag">6</span>
-                </span>
-            </a>
-        </li>
-        
-        <li>
-            <a class="level is-marginless" href="/archives/2019/10/">
-                <span class="level-start">
-                    <span class="level-item">十月 2019</span>
-                </span>
-                <span class="level-end">
-                    <span class="level-item tag">2</span>
-                </span>
-            </a>
-        </li>
-        
-        </ul>
-        </div>
-    </div>
-</div>
-    
-    
-</div>
-
             </div>
         </div>
     </section>
